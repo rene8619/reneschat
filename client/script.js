@@ -48,9 +48,9 @@ function showUsers(users) {
 function showMessage(message) {
   let chatDiv = document.getElementById("chatNachrichten");
   console.log("test stop");
-  console.log("vom be empgangene Nachricht:", message);
-  chatDiv.innerHTML += "Die sist ein test <br>";
-  chatDiv.innerHTML += message;
+  console.log("vom be empgangene Nachricht:", message, "<br>");
+  //chatDiv.innerHTML += "Die sist ein test <br>";
+  chatDiv.innerHTML += message + "<br>";
   // TODO: Show new message as DOM element append to chat history
 }
 
@@ -78,6 +78,7 @@ function sendMessage() {
 
 
   }
+  document.getElementById("nachricht").value = "";
 console.log(nachrichtObjekt);
 
   socket.send(JSON.stringify(nachrichtObjekt));
