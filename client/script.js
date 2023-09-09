@@ -34,7 +34,7 @@ socket.addEventListener("message", (event) => {
       // TODO: Show new message as DOM element append to chat history
       console.log("Nachricht vom Backend empfangen")
       console.log(messageObject);
-      showMessage(messageObject.nachricht);
+      showMessage(messageObject.nachricht, messageObject.benutzer);
       break;
     default:
       console.error("Unknown message type: " + messageObject.type);
@@ -45,12 +45,12 @@ function showUsers(users) {
   // TODO: Show the current users as DOM elements
 }
 
-function showMessage(message) {
+function showMessage(message, benutzer) {
   let chatDiv = document.getElementById("chatNachrichten");
   console.log("test stop");
-  console.log("vom be empgangene Nachricht:", message, "<br>");
+  console.log("vom be empgangene Nachricht:", message, "<br> von: ", benutzer);
   //chatDiv.innerHTML += "Die sist ein test <br>";
-  chatDiv.innerHTML += message + "<br>";
+  chatDiv.innerHTML += benutzer + ":" + message + "<br>";
   // TODO: Show new message as DOM element append to chat history
 }
 
