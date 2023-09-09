@@ -23,9 +23,13 @@ const initializeWebsocketServer = async (server) => {
 // If a new connection is established, the onConnection function is called
 const onConnection = (ws) => {
   console.log("New websocket connection");
+  
+  //Den Client dem Array clients hinzufügen
+  clients.push(ws);
   ws.on("close", () => onClose(ws));
   ws.on("message", (message) => onClientMessage(ws, message));
   // TODO: Send all connected users and current message history to the new client
+  //console.log("ws ist:", ws);
   ws.send(JSON.stringify({ type: "ping", data: "FROM SERVER" }));
 };
 
@@ -42,8 +46,15 @@ const onClientMessage = async (ws, message) => {
     case "message":
       // TODO: Publish new message to all connected clients and save in redis
       console.log("Empangene Nachricht", messageObject);
-      ws.send(JSON.stringify({ type: "ping", data: "FROM SERVER" }));
-      ws.send(JSON.stringify(messageObject));
+      // Nachricht mit einer forEach Schlaufe an alle Clients senden die im Array clients[] stehen
+      clients.forEach((client) => {
+        
+        client.send(JSON.stringify(messageObject));
+      
+    });
+
+      
+     // ws.send(JSON.stringify(messageObject));  //nur an den einen Client senden von wo die Nachricht kam
 
       break;
     default:
