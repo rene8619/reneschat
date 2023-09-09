@@ -16,9 +16,27 @@ const socket = new WebSocket(backendUrl);
 // !!!!!!!!!!!! DON'T TOUCH ANYTHING ABOVE THIS LINE !!!!!!!!!!!!
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+let benutzername = BenutzernameGenerieren();
+document.getElementById("benutzername").innerHTML = benutzername;
+
+
 socket.addEventListener("open", async (event) => {
   console.log("WebSocket connected!");
   // TODO: create message object to transmit the user to the backend
+
+  let nachrichtObjekt = {
+    type: "neuerBenutzer",
+    benutzer: benutzername
+   
+  }
+
+console.log("neuer Benuter: ")  
+console.log(nachrichtObjekt);
+
+  socket.send(JSON.stringify(nachrichtObjekt));
+
+
+
 });
 
 socket.addEventListener("message", (event) => {
@@ -64,7 +82,21 @@ socket.addEventListener("error", (event) => {
 
 function changeUsername() {
   // TODO: Implement change username and forward new username to backend
-  socket.send(JSON.stringify(message));
+  let benutzerNeu =document.getElementById("namenswechsel").value;
+  let nachrichtObjekt = {
+    type: "benutzernameWechsel",
+    benutzer: benutzerNeu,
+    benutzerAlt: benutzername
+   
+  }
+  benutzername= benutzerNeu;
+  document.getElementById("benutzername").innerHTML = benutzername;
+
+console.log("neuer Benutzer: ")  
+console.log(nachrichtObjekt);
+
+  socket.send(JSON.stringify(nachrichtObjekt));
+  //socket.send(JSON.stringify(message));
 }
 
 function sendMessage() {
@@ -83,3 +115,10 @@ console.log(nachrichtObjekt);
 
   socket.send(JSON.stringify(nachrichtObjekt));
 }
+
+function BenutzernameGenerieren(){
+  //Zufallszahl 5 Stellig
+  let zufallszahl= Math.floor(10000 + Math.random() * 90000);
+  let gastname = "Gast" + zufallszahl;
+  return gastname;
+} 
