@@ -32,6 +32,9 @@ socket.addEventListener("message", (event) => {
       break;
     case "message":
       // TODO: Show new message as DOM element append to chat history
+      console.log("Nachricht vom Backend empfangen")
+      console.log(messageObject);
+      showMessage(messageObject.nachricht);
       break;
     default:
       console.error("Unknown message type: " + messageObject.type);
@@ -43,6 +46,11 @@ function showUsers(users) {
 }
 
 function showMessage(message) {
+  let chatDiv = document.getElementById("chatNachrichten");
+  console.log("test stop");
+  console.log("vom be empgangene Nachricht:", message);
+  chatDiv.innerHTML += "Die sist ein test <br>";
+  chatDiv.innerHTML += message;
   // TODO: Show new message as DOM element append to chat history
 }
 
@@ -61,5 +69,16 @@ function changeUsername() {
 
 function sendMessage() {
   // TODO get message from input and send message as object to backend
-  socket.send(JSON.stringify(message));
+  console.log("send Message wurde ausgeführt ")
+  let nachrichtInhalt = document.getElementById("nachricht").value;
+  let nachrichtObjekt = {
+    type: "message",
+    benutzer: "Testbenutzer1",
+    nachricht: nachrichtInhalt
+
+
+  }
+console.log(nachrichtObjekt);
+
+  socket.send(JSON.stringify(nachrichtObjekt));
 }

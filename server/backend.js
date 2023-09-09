@@ -41,6 +41,10 @@ const onClientMessage = async (ws, message) => {
       break;
     case "message":
       // TODO: Publish new message to all connected clients and save in redis
+      console.log("Empangene Nachricht", messageObject);
+      ws.send(JSON.stringify({ type: "ping", data: "FROM SERVER" }));
+      ws.send(JSON.stringify(messageObject));
+
       break;
     default:
       console.error("Unknown message type: " + messageObject.type);
