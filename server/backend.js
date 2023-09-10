@@ -49,6 +49,8 @@ const onClientMessage = async (ws, message) => {
       benutzer.push(messageObject.benutzer);
       console.log(benutzer);
 
+      benutzerInJSON()
+
 
 
       break;
@@ -62,10 +64,17 @@ const onClientMessage = async (ws, message) => {
         benutzer.splice(zuEntfernenderIndex, 1);
       }
 
-
+      // neuer Benutzername dem Array hinzufügen
       benutzer.push(messageObject.benutzer);
       console.log(benutzer); 
+      
+      let benutzerObjekt = benutzerInJSON();
 
+      clients.forEach((client) => {
+
+        client.send(JSON.stringify(benutzerObjekt));
+
+      });
 
 
       break;
@@ -103,3 +112,38 @@ const setMessageHistory = async (messageHistory) => {
 };
 
 module.exports = { initializeWebsocketServer };
+
+
+function benutzerInJSON() {
+  /*let benutzerListeJson = {
+    type: "user",
+    data: benutzer.map((benutzer, index) => ({
+      // id: index + 1, // Eine eindeutige ID für den Client
+       benutzername: benutzer, // 
+       
+     }))
+  };
+  */
+
+  /*let benutzerListeJson = benutzer.map((benutzer) => ({
+    type: "user",
+    benutzername: benutzer
+  }));
+  */
+
+
+  let benutzerListeJson = {
+    type: "user",
+    data: benutzer.map((benutzer, index) => ({
+      // id: index + 1, // Eine eindeutige ID für den Client
+       benutzername: benutzer, // 
+       
+     }))
+  };
+
+
+  console.log("in benutzerInJSON() ")
+console.log(benutzerListeJson);
+  //return JSON.stringify(benutzerListeJson);
+  return benutzerListeJson;
+}

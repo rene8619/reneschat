@@ -2,9 +2,9 @@ if (location.host.includes("localhost")) {
   // Load livereload script if we are on localhost
   document.write(
     '<script src="http://' +
-      (location.host || "localhost").split(":")[0] +
-      ':35729/livereload.js?snipver=1"></' +
-      "script>"
+    (location.host || "localhost").split(":")[0] +
+    ':35729/livereload.js?snipver=1"></' +
+    "script>"
   );
 }
 const backendUrl = window.location.origin
@@ -27,11 +27,11 @@ socket.addEventListener("open", async (event) => {
   let nachrichtObjekt = {
     type: "neuerBenutzer",
     benutzer: benutzername
-   
+
   }
 
-console.log("neuer Benuter: ")  
-console.log(nachrichtObjekt);
+  console.log("neuer Benuter: ")
+  console.log(nachrichtObjekt);
 
   socket.send(JSON.stringify(nachrichtObjekt));
 
@@ -47,6 +47,38 @@ socket.addEventListener("message", (event) => {
       socket.send(JSON.stringify({ type: "pong", data: "FROM CLIENT" }));
     case "user":
       // TODO: Show the current users as DOM elements
+
+      //console.log(messageObject);
+
+
+
+      let benutzerArray = Object.values(messageObject.data);
+      if (Array.isArray(benutzerArray)) {
+        console.log("ist ein Array")
+      } else {
+        console.log("Ist kein Array")
+      }
+
+
+      // Das <ul> Element auswählen
+      let BenutzerListe = document.getElementById("user-list");
+
+      // Alle vorhandenen <li> Elemente im <ul> Element entfernen
+      while (BenutzerListe.firstChild) {
+        BenutzerListe.removeChild(BenutzerListe.firstChild);
+      }
+
+      // Die Benutzernamen aus dem JSON-Objekt extrahieren und in die Liste einfügen
+      benutzerArray.forEach((item) => {
+        // Ein <li> Element für jeden Benutzernamen erstellen
+        const listItem = document.createElement("li");
+        listItem.textContent = item.benutzername;
+
+        // Das <li> Element der <ul> Liste hinzufügen
+        BenutzerListe.appendChild(listItem);
+      });
+
+
       break;
     case "message":
       // TODO: Show new message as DOM element append to chat history
@@ -82,18 +114,18 @@ socket.addEventListener("error", (event) => {
 
 function changeUsername() {
   // TODO: Implement change username and forward new username to backend
-  let benutzerNeu =document.getElementById("namenswechsel").value;
+  let benutzerNeu = document.getElementById("namenswechsel").value;
   let nachrichtObjekt = {
     type: "benutzernameWechsel",
     benutzer: benutzerNeu,
     benutzerAlt: benutzername
-   
+
   }
-  benutzername= benutzerNeu;
+  benutzername = benutzerNeu;
   document.getElementById("benutzername").innerHTML = benutzername;
 
-console.log("neuer Benutzer: ")  
-console.log(nachrichtObjekt);
+  console.log("neuer Benutzer: ")
+  console.log(nachrichtObjekt);
 
   socket.send(JSON.stringify(nachrichtObjekt));
   //socket.send(JSON.stringify(message));
@@ -111,14 +143,14 @@ function sendMessage() {
 
   }
   document.getElementById("nachricht").value = "";
-console.log(nachrichtObjekt);
+  console.log(nachrichtObjekt);
 
   socket.send(JSON.stringify(nachrichtObjekt));
 }
 
-function BenutzernameGenerieren(){
+function BenutzernameGenerieren() {
   //Zufallszahl 5 Stellig
-  let zufallszahl= Math.floor(10000 + Math.random() * 90000);
+  let zufallszahl = Math.floor(10000 + Math.random() * 90000);
   let gastname = "Gast" + zufallszahl;
   return gastname;
 } 
