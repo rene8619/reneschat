@@ -106,6 +106,16 @@ function showMessage(message, benutzer) {
 
 socket.addEventListener("close", (event) => {
   console.log("WebSocket closed.");
+  let testObjekt = {
+    type: "test",
+    benutzer: benutzername
+
+  }
+
+  
+  console.log(testObjekt);
+
+  socket.send(JSON.stringify(testObjekt));
 });
 
 socket.addEventListener("error", (event) => {

@@ -5,6 +5,8 @@ let redisClient;
 let clients = [];
 let messageHistory = [];
 
+//let clients2 ={};
+
 let benutzer = [];
 
 // Intiiate the websocket server
@@ -47,6 +49,8 @@ const onClientMessage = async (ws, message) => {
       break;
     case "neuerBenutzer":
       benutzer.push(messageObject.benutzer);
+      ws.benutzername = messageObject.benutzer;
+      //console.log(ws);
       //console.log(benutzer);
 
       // altualisierte Liste der Benutzer an alle Clients schicken
@@ -58,7 +62,7 @@ const onClientMessage = async (ws, message) => {
     case "benutzernameWechsel":
       // Index des zu entfernenden Benutzers ermitteln
       let zuEntfernenderIndex = benutzer.indexOf(messageObject.benutzerAlt);
-      console.log(zuEntfernenderIndex);
+      //console.log(zuEntfernenderIndex);
 
       // Benutzer aus dem Array entfernen
       if (zuEntfernenderIndex !== -1) {
@@ -68,6 +72,9 @@ const onClientMessage = async (ws, message) => {
       // neuer Benutzername dem Array hinzufügen
       benutzer.push(messageObject.benutzer);
       //console.log(benutzer); 
+
+      //Attribut Benutzername von ws ändern  
+      ws.benutzername = messageObject.benutzer;
       
       // altualisierte Liste der Benutzer an alle Clients schicken
       sendeBenutzerlisteZuClients()
@@ -99,6 +106,9 @@ const onClientMessage = async (ws, message) => {
       // ws.send(JSON.stringify(messageObject));  //nur an den einen Client senden von wo die Nachricht kam
 
       break;
+      case "test":
+      console.log("Test empfangen: " + messageObject.data);
+      break;
     default:
       console.error("Unknown message type: " + messageObject.type);
   }
@@ -107,6 +117,23 @@ const onClientMessage = async (ws, message) => {
 // If a connection is closed, the onClose function is called
 const onClose = async (ws) => {
   console.log("Websocket connection closed");
+  console.log(ws.benutzername);
+
+// Index des zu entfernenden Benutzers ermitteln
+let zuEntfernenderIndex = benutzer.indexOf(ws.benutzername);
+//console.log(zuEntfernenderIndex);
+
+// Benutzer aus dem Array entfernen
+if (zuEntfernenderIndex !== -1) {
+  benutzer.splice(zuEntfernenderIndex, 1);
+}
+
+
+// altualisierte Liste der Benutzer an alle Clients schicken
+sendeBenutzerlisteZuClients()
+
+
+
   // TODO: Remove related user from connected users and propagate new list
 };
 
