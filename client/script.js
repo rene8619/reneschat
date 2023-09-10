@@ -97,8 +97,8 @@ function showUsers(users) {
 
 function showMessage(message, benutzer) {
   let chatDiv = document.getElementById("chatNachrichten");
-  console.log("test stop");
-  console.log("vom be empgangene Nachricht:", message, "<br> von: ", benutzer);
+  //console.log("test stop");
+  //console.log("vom be empgangene Nachricht:", message, "<br> von: ", benutzer);
   //chatDiv.innerHTML += "Die sist ein test <br>";
   chatDiv.innerHTML += benutzer + ":" + message + "<br>";
   // TODO: Show new message as DOM element append to chat history
@@ -137,7 +137,7 @@ function sendMessage() {
   let nachrichtInhalt = document.getElementById("nachricht").value;
   let nachrichtObjekt = {
     type: "message",
-    benutzer: "Testbenutzer1",
+    benutzer: benutzername,
     nachricht: nachrichtInhalt
 
 
