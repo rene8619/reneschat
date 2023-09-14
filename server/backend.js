@@ -7,7 +7,7 @@ let messageHistory = [];
 
 
 
-let testarray= ["test1", "test2", "test3"];
+let testarray = ["test1", "test2", "test3"];
 
 //let clients2 ={};
 
@@ -17,30 +17,30 @@ let benutzer = []; // Chatnamen der Nutzer
 
 
 const initializeWebsocketServer = async (server) => {
-  
+
   redisClient = redis.createClient({
     socket: {
       host: process.env.REDIS_HOST || "localhost",
       port: process.env.REDIS_PORT || "6379",
     },
   });
-  
+
   await redisClient.connect();
 
 
   // Nachrichtenverlauf aus Redis abrufen
   nachrichtenverlaufAusRedisLokalSpeichern();
-benutzer= [];
-benutzerlisteInRedisSpeichern();
+
+  benutzerlisteInRedisSpeichern();
   benutzerAusRedisLokalSpeichern();
-  console.log(benutzer);
- 
+
+
 
   const websocketServer = new WebSocket.Server({ server });
   websocketServer.on("connection", onConnection);
   websocketServer.on("error", console.error);
 
-    
+
 };
 
 
@@ -60,8 +60,8 @@ const onConnection = (ws) => {
   // TODO: Send all connected users and current message history to the new client
   //console.log("ws ist:", ws);
 
-    // Senden des Nachrichtenverlaufs an den neuen Client
-    sendeNachrichtenverlaufZuClient(ws);
+  // Senden des Nachrichtenverlaufs an den neuen Client
+  sendeNachrichtenverlaufZuClient(ws);
 
   ws.send(JSON.stringify({ type: "ping", data: "FROM SERVER" }));
 };
@@ -79,7 +79,7 @@ const onClientMessage = async (ws, message) => {
       break;
     case "neuerBenutzer":
 
-    benutzerAusRedisLokalSpeichern();
+      benutzerAusRedisLokalSpeichern();
 
       //neuen Benutzer der Benutzerliste benutzer[] hinzufügen
       benutzer.push(messageObject.benutzer);
@@ -93,16 +93,17 @@ const onClientMessage = async (ws, message) => {
       // altualisierte Liste der Benutzer an alle Clients schicken
       sendeBenutzerlisteZuClients();
 
-      benutzerlisteInRedisSpeichern();   
+      benutzerlisteInRedisSpeichern();
 
- 
+
 
       break;
     case "benutzernameWechsel":
-      
-    benutzerAusRedisLokalSpeichern();
-    
-    // Index des zu entfernenden Benutzers ermitteln
+
+       benutzerAusRedisLokalSpeichern();
+       await pause(100);
+
+      // Index des zu entfernenden Benutzers ermitteln
       let zuEntfernenderIndex = benutzer.indexOf(messageObject.benutzerAlt);
       //console.log(zuEntfernenderIndex);
 
@@ -117,7 +118,7 @@ const onClientMessage = async (ws, message) => {
 
       //Attribut Benutzername von ws ändern  
       ws.benutzername = messageObject.benutzer;
-      
+
       // altualisierte Liste der Benutzer an alle Clients schicken
       sendeBenutzerlisteZuClients();
       benutzerlisteInRedisSpeichern();
@@ -145,7 +146,7 @@ const onClientMessage = async (ws, message) => {
       nachrichtenverlaufAusRedisLokalSpeichern();
 
       //Die Neue Nachricht im Nachrichtenverlauf messageHistory[] anfügen
-      
+
       messageHistory.push(messageObject);
       //Die aktualisierte messageHistory im Redis speichern
       setMessageHistory(JSON.stringify(messageHistory))
@@ -161,12 +162,12 @@ const onClientMessage = async (ws, message) => {
 
 
       });
- 
- 
+
+
       // ws.send(JSON.stringify(messageObject));  //nur an den einen Client senden von wo die Nachricht kam
 
       break;
-      case "test":
+    case "test":
       console.log("Test empfangen: " + messageObject.data);
       break;
     default:
@@ -183,22 +184,22 @@ const onClose = async (ws) => {
 
   benutzerAusRedisLokalSpeichern();
 
-// Index des zu entfernenden Benutzers ermitteln
-let zuEntfernenderIndex = benutzer.indexOf(ws.benutzername);
-//console.log(zuEntfernenderIndex);
+  // Index des zu entfernenden Benutzers ermitteln
+  let zuEntfernenderIndex = benutzer.indexOf(ws.benutzername);
+  //console.log(zuEntfernenderIndex);
 
-// Benutzer aus dem Array entfernen
-if (zuEntfernenderIndex !== -1) {
-  benutzer.splice(zuEntfernenderIndex, 1);
-}
+  // Benutzer aus dem Array entfernen
+  if (zuEntfernenderIndex !== -1) {
+    benutzer.splice(zuEntfernenderIndex, 1);
+  }
 
 
-// altualisierte Liste der Benutzer an alle Clients schicken
-sendeBenutzerlisteZuClients()
+  // altualisierte Liste der Benutzer an alle Clients schicken
+  sendeBenutzerlisteZuClients()
 
-benutzerlisteInRedisSpeichern();
+  benutzerlisteInRedisSpeichern();
 
-  
+
 };
 
 const getMessageHistory = async () => {
@@ -211,18 +212,18 @@ const setMessageHistory = async (messageHistory) => {
 
 module.exports = { initializeWebsocketServer };
 
-function sendeBenutzerlisteZuClients(){
+function sendeBenutzerlisteZuClients() {
 
-   //Array in ein JSON Objekt umwandeln
-   let benutzerObjekt = benutzerInJSON();
+  //Array in ein JSON Objekt umwandeln
+  let benutzerObjekt = benutzerInJSON();
 
-   //Neue Liste der Benutzer an alle Clients schicken
-   clients.forEach((client) => {
+  //Neue Liste der Benutzer an alle Clients schicken
+  clients.forEach((client) => {
 
-     client.send(JSON.stringify(benutzerObjekt));
+    client.send(JSON.stringify(benutzerObjekt));
 
-   });
-  
+  });
+
 }
 
 
@@ -248,14 +249,14 @@ function benutzerInJSON() {
     type: "user",
     data: benutzer.map((benutzer, index) => ({
       // id: index + 1, // Eine eindeutige ID für den Client
-       benutzername: benutzer, // 
-       
-     }))
+      benutzername: benutzer, // 
+
+    }))
   };
 
 
   //console.log("in benutzerInJSON() ")
-//console.log(benutzerListeJson);
+  //console.log(benutzerListeJson);
   //return JSON.stringify(benutzerListeJson);
   return benutzerListeJson;
 }
@@ -276,37 +277,38 @@ function sendeNachrichtenverlaufZuClient(client) {
 }
 
 //Nachrichten aus Redis auslesen und lokal in messageHistory[] speichern
-function nachrichtenverlaufAusRedisLokalSpeichern(){
+function nachrichtenverlaufAusRedisLokalSpeichern() {
   getMessageHistory()
-      .then((messageHistory) => {
-        if (messageHistory) {
-          // Nachrichtenverlauf wurde erfolgreich aus Redis abgerufen
-          let parsedMessageHistory = JSON.parse(messageHistory);
-          console.log("Nachrichtenverlauf aus Redis abgerufen:", parsedMessageHistory);
-          // Nachrichtenverlauf aus dem Redis im "lokalen" messageHistory[] speichern
-          messageHistory=parsedMessageHistory;
-        } else {
-          // Nachrichtenverlauf existiert nicht in Redis oder ist leer
-          console.log("Kein Nachrichtenverlauf in Redis gefunden.");
-        }
-      })
-      .catch((error) => {
-        console.error("Fehler beim Abrufen des Nachrichtenverlaufs aus Redis:", error);
-      });
+    .then((messageHistory) => {
+      if (messageHistory) {
+        // Nachrichtenverlauf wurde erfolgreich aus Redis abgerufen
+        let parsedMessageHistory = JSON.parse(messageHistory);
+        console.log("Nachrichtenverlauf aus Redis abgerufen:", parsedMessageHistory);
+        
+        // Nachrichtenverlauf aus dem Redis im "lokalen" messageHistory[] speichern
+        messageHistory = parsedMessageHistory;
+      } else {
+        // Nachrichtenverlauf existiert nicht in Redis oder ist leer
+        console.log("Kein Nachrichtenverlauf in Redis gefunden.");
+      }
+    })
+    .catch((error) => {
+      console.error("Fehler beim Abrufen des Nachrichtenverlaufs aus Redis:", error);
+    });
 }
- 
 
+/*
 async function benutzerAusRedisLokalSpeichern(){
   
       const benutzerInRedis = await redisClient.get("benutzer");
       if (benutzerInRedis) {
-        // Nachrichtenverlauf wurde erfolgreich aus Redis abgerufen
+        
         let parsedBenuterAusRedis = JSON.parse(benutzerInRedis);
         console.log("Benutzerliste aus Redis abgerufen:", parsedBenuterAusRedis);
-        // Nachrichtenverlauf aus dem Redis im "lokalen" messageHistory[] speichern
+        
         benutzer=parsedBenuterAusRedis;
       } else {
-        // Nachrichtenverlauf existiert nicht in Redis oder ist leer
+        
         console.log("Keine Benutzer in Redis gefunden.");
       }
   }
@@ -320,7 +322,48 @@ async function benutzerAusRedisLokalSpeichern(){
       console.error("Fehler beim Speichern der Benutzerliste in Redis:", error);
     }
   }
-  
-        
-    
-  
+*/
+
+
+function benutzerAusRedisLokalSpeichern() {
+  holeBenutzerliste()
+    .then((benutzerlisteRedis) => {
+      if (benutzerlisteRedis) {
+        // Benutzerliste wurde erfolgreich aus Redis abgerufen
+        pause(100);
+        let parsedBenutzerliste = JSON.parse(benutzerlisteRedis);
+        console.log("Benutzer aus Redis abgerufen:", parsedBenutzerliste);
+        // Benutzerliste aus dem Redis im "lokalen" benutzer[] speichern
+         pause(2000);
+        console.log("Benutzer aus benutzer[] vor aktualisierung:", benutzer);
+        benutzer = parsedBenutzerliste; 
+        pause(100);
+        console.log("Benutzer aus benutzer[] nach aktualisierung:", benutzer);
+      } else {
+        // Benutzerliste existiert nicht in Redis oder ist leer
+        console.log("Keine Benutzerliste in Redis gefunden.");
+      }
+    })
+    .catch((error) => {
+      console.error("Fehler beim Abrufen der Benutzerliste aus Redis:", error);
+    });
+}
+
+function benutzerlisteInRedisSpeichern() {
+  speichereBenutzerliste(JSON.stringify(benutzer));
+}
+
+const holeBenutzerliste = async () => {
+  return await redisClient.get("benutzer");
+};
+
+const speichereBenutzerliste = async (benutzerliste) => {
+  await redisClient.set("benutzer", benutzerliste);
+};
+
+
+ function pause(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
