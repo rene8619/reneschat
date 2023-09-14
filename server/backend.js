@@ -2,7 +2,7 @@ const WebSocket = require("ws");
 const redis = require("redis");
 let redisClient;
 
-let clients = [];
+let clients = []; //Websocketverbindungen
 let messageHistory = [];
 
 
@@ -11,7 +11,7 @@ let testarray= ["test1", "test2", "test3"];
 
 //let clients2 ={};
 
-let benutzer = []; 
+let benutzer = []; // Chatnamen der Nutzer
 
 // Intiiate the websocket server
 
@@ -30,15 +30,18 @@ const initializeWebsocketServer = async (server) => {
 
   // Nachrichtenverlauf aus Redis abrufen
   nachrichtenverlaufAusRedisLokalSpeichern();
-
+benutzer= [];
+benutzerlisteInRedisSpeichern();
+  benutzerAusRedisLokalSpeichern();
+  console.log(benutzer);
+ 
 
   const websocketServer = new WebSocket.Server({ server });
   websocketServer.on("connection", onConnection);
   websocketServer.on("error", console.error);
 
-   
+    
 };
-
 
 
 
@@ -72,21 +75,34 @@ const onClientMessage = async (ws, message) => {
       console.log("Received from client: " + messageObject.data);
     case "user":
       // TODO: Publish all connected users to all connected clients
+      //nicht genutzt
       break;
     case "neuerBenutzer":
+
+    benutzerAusRedisLokalSpeichern();
+
+      //neuen Benutzer der Benutzerliste benutzer[] hinzufügen
       benutzer.push(messageObject.benutzer);
+
+      /* Den Benutzernamen als Attribut der Websocketverbindung hinzufügen. 
+      Damit der Benutzername identifiziert werden kann wenn die Websocketverbindung geschlossen wird */
       ws.benutzername = messageObject.benutzer;
       //console.log(ws);
       //console.log(benutzer);
 
       // altualisierte Liste der Benutzer an alle Clients schicken
-      sendeBenutzerlisteZuClients()
+      sendeBenutzerlisteZuClients();
 
+      benutzerlisteInRedisSpeichern();   
 
+ 
 
       break;
     case "benutzernameWechsel":
-      // Index des zu entfernenden Benutzers ermitteln
+      
+    benutzerAusRedisLokalSpeichern();
+    
+    // Index des zu entfernenden Benutzers ermitteln
       let zuEntfernenderIndex = benutzer.indexOf(messageObject.benutzerAlt);
       //console.log(zuEntfernenderIndex);
 
@@ -103,7 +119,8 @@ const onClientMessage = async (ws, message) => {
       ws.benutzername = messageObject.benutzer;
       
       // altualisierte Liste der Benutzer an alle Clients schicken
-      sendeBenutzerlisteZuClients()
+      sendeBenutzerlisteZuClients();
+      benutzerlisteInRedisSpeichern();
 
       /*
       //Array in ein JSON Objekt umwandeln
@@ -164,6 +181,8 @@ const onClose = async (ws) => {
   console.log("Websocket connection closed");
   console.log(ws.benutzername);
 
+  benutzerAusRedisLokalSpeichern();
+
 // Index des zu entfernenden Benutzers ermitteln
 let zuEntfernenderIndex = benutzer.indexOf(ws.benutzername);
 //console.log(zuEntfernenderIndex);
@@ -177,7 +196,7 @@ if (zuEntfernenderIndex !== -1) {
 // altualisierte Liste der Benutzer an alle Clients schicken
 sendeBenutzerlisteZuClients()
 
-
+benutzerlisteInRedisSpeichern();
 
   
 };
@@ -275,3 +294,33 @@ function nachrichtenverlaufAusRedisLokalSpeichern(){
         console.error("Fehler beim Abrufen des Nachrichtenverlaufs aus Redis:", error);
       });
 }
+ 
+
+async function benutzerAusRedisLokalSpeichern(){
+  
+      const benutzerInRedis = await redisClient.get("benutzer");
+      if (benutzerInRedis) {
+        // Nachrichtenverlauf wurde erfolgreich aus Redis abgerufen
+        let parsedBenuterAusRedis = JSON.parse(benutzerInRedis);
+        console.log("Benutzerliste aus Redis abgerufen:", parsedBenuterAusRedis);
+        // Nachrichtenverlauf aus dem Redis im "lokalen" messageHistory[] speichern
+        benutzer=parsedBenuterAusRedis;
+      } else {
+        // Nachrichtenverlauf existiert nicht in Redis oder ist leer
+        console.log("Keine Benutzer in Redis gefunden.");
+      }
+  }
+      
+  async function benutzerlisteInRedisSpeichern(){
+    try{
+    
+      await redisClient.set("benutzer", JSON.stringify(benutzer));
+      console.log("Benutzerliste in Redis gespeichert");
+    }catch (error) {
+      console.error("Fehler beim Speichern der Benutzerliste in Redis:", error);
+    }
+  }
+  
+        
+    
+  
