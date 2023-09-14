@@ -36,32 +36,16 @@ const initializeWebsocketServer = async (server) => {
 redisClient = redis.createClient({});
 redisClient.connect();  
  
-(async () => {
-    
-  // Warten Sie auf das 'connect'-Ereignis, um sicherzustellen, dass die Verbindung hergestellt wurde
-  redisClient.on('connect', async () => {
-    console.log('Redis Client Connected');
-    
-    // Setzen Sie den Wert in Redis
-    await redisClient.set('key', 'testinhalt text');
-    console.log("te");
-    
-     // Rufen Sie den Wert aus Redis ab (verwenden Sie `await`)
-     
-     console.log("im abrufen 1");
-     
-     const meinWert = await redisClient.get('key');
-     
-     console.log(`Wert aus Redis abgerufen: ${meinWert}`);
 
-    // Beenden Sie die Verbindung zur Redis-Datenbank
-    redisClient.quit();
-  });
 
-  redisClient.on('error', (err) => {
-    console.error('Redis Client Connection Error', err);
-  });
-})();  
+
+
+
+ 
+
+
+
+
 
 
 
@@ -131,7 +115,9 @@ const onClientMessage = async (ws, message) => {
         client.send(JSON.stringify(benutzerObjekt));
 
       });
-*/
+
+      */
+
 
       break;
     case "message":
