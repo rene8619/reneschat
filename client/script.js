@@ -86,6 +86,19 @@ socket.addEventListener("message", (event) => {
       console.log(messageObject);
       showMessage(messageObject.nachricht, messageObject.benutzer);
       break;
+
+      case "initialeDaten": 
+      // Initialdaten vom Server empfangen, Nur die messageHistory user sind anderst gelöst
+      console.log("Initialdaten vom Server empfangen");
+      console.log(messageObject);
+
+      // Nachrichtenverlauf anzeigen
+      messageObject.messageHistory.forEach((message) => {
+        showMessage(message.nachricht, message.benutzer);
+      });
+
+      break;
+
     default:
       console.error("Unknown message type: " + messageObject.type);
   }

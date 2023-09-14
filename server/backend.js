@@ -5,6 +5,8 @@ let redisClient;
 let clients = [];
 let messageHistory = [];
 
+
+
 let testarray= ["test1", "test2", "test3"];
 
 //let clients2 ={};
@@ -25,9 +27,29 @@ const initializeWebsocketServer = async (server) => {
   
   await redisClient.connect();
 
+
+  // Nachrichtenverlauf aus Redis abrufen
+  getMessageHistory()
+    .then((redisMessageHistory) => {
+      if (redisMessageHistory) {
+        // Nachrichtenverlauf aus Redis erfolgreich abgerufen
+        messageHistory = JSON.parse(redisMessageHistory);
+        console.log("Nachrichtenverlauf aus Redis abgerufen:", messageHistory);
+      } else {
+        // Nachrichtenverlauf existiert nicht in Redis oder ist leer
+        console.log("Kein Nachrichtenverlauf in Redis gefunden.");
+      }
+    })
+    .catch((error) => {
+      console.error("Fehler beim Abrufen des Nachrichtenverlaufs aus Redis:", error);
+    });
+
+
   const websocketServer = new WebSocket.Server({ server });
   websocketServer.on("connection", onConnection);
   websocketServer.on("error", console.error);
+
+   
 };
 
 
@@ -47,6 +69,10 @@ const onConnection = (ws) => {
   ws.on("message", (message) => onClientMessage(ws, message));
   // TODO: Send all connected users and current message history to the new client
   //console.log("ws ist:", ws);
+
+    // Senden des Nachrichtenverlaufs an den neuen Client
+    sendeNachrichtenverlaufZuClient(ws);
+
   ws.send(JSON.stringify({ type: "ping", data: "FROM SERVER" }));
 };
 
@@ -241,4 +267,19 @@ function benutzerInJSON() {
 //console.log(benutzerListeJson);
   //return JSON.stringify(benutzerListeJson);
   return benutzerListeJson;
+}
+
+function sendeNachrichtenverlaufZuClient(client) {
+  // Senden Sie den Nachrichtenverlauf als JSON an den Client
+
+  let datenzumSenden = {
+    type: "initialeDaten",
+    users: benutzer,
+    messageHistory: messageHistory,
+  };
+
+  // Senden Sie das JSON-Objekt an den Client
+  client.send(JSON.stringify(datenzumSenden));
+
+  //client.send(JSON.stringify(messageHistory));
 }
