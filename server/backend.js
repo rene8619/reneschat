@@ -29,20 +29,7 @@ const initializeWebsocketServer = async (server) => {
 
 
   // Nachrichtenverlauf aus Redis abrufen
-  getMessageHistory()
-    .then((redisMessageHistory) => {
-      if (redisMessageHistory) {
-        // Nachrichtenverlauf aus Redis erfolgreich abgerufen
-        messageHistory = JSON.parse(redisMessageHistory);
-        console.log("Nachrichtenverlauf aus Redis abgerufen:", messageHistory);
-      } else {
-        // Nachrichtenverlauf existiert nicht in Redis oder ist leer
-        console.log("Kein Nachrichtenverlauf in Redis gefunden.");
-      }
-    })
-    .catch((error) => {
-      console.error("Fehler beim Abrufen des Nachrichtenverlaufs aus Redis:", error);
-    });
+  nachrichtenverlaufAusRedisLokalSpeichern();
 
 
   const websocketServer = new WebSocket.Server({ server });
@@ -137,34 +124,17 @@ const onClientMessage = async (ws, message) => {
       // TODO: Publish new message to all connected clients and save in redis
       console.log("Empangene Nachricht", messageObject);
 
-      //Den Nachrichtenverlauf im array messageHistory speichern
+      //Nachrichten von Redis im lokalen messageHistory[] speichern damit man auf dem aktuellsten Stand ist
+      nachrichtenverlaufAusRedisLokalSpeichern();
+
+      //Die Neue Nachricht im Nachrichtenverlauf messageHistory[] anfügen
+      
       messageHistory.push(messageObject);
+      //Die aktualisierte messageHistory im Redis speichern
       setMessageHistory(JSON.stringify(messageHistory))
 
+      console.log("Nachrichtenverlauf auf Redis aktualisiert", JSON.stringify(messageHistory));
 
-      console.log("Empangene Nachricht History", JSON.stringify(messageHistory));
-
-
-      getMessageHistory()
-      .then((messageHistory) => {
-        if (messageHistory) {
-          // Nachrichtenverlauf wurde erfolgreich aus Redis abgerufen
-          const parsedMessageHistory = JSON.parse(messageHistory);
-          console.log("Nachrichtenverlauf aus Redis abgerufen:", parsedMessageHistory);
-        } else {
-          // Nachrichtenverlauf existiert nicht in Redis oder ist leer
-          console.log("Kein Nachrichtenverlauf in Redis gefunden.");
-        }
-      })
-      .catch((error) => {
-        console.error("Fehler beim Abrufen des Nachrichtenverlaufs aus Redis:", error);
-      });
-
-
-
-
-      //let messageHistoryZuruck = getMessageHistory;
-      //console.log((messageHistoryZuruck));
 
       // Nachricht mit einer forEach Schlaufe an alle Clients senden die im Array clients[] stehen
       clients.forEach((client) => {
@@ -188,6 +158,8 @@ const onClientMessage = async (ws, message) => {
 };
 
 // If a connection is closed, the onClose function is called
+// TODO: Remove related user from connected users and propagate new list
+
 const onClose = async (ws) => {
   console.log("Websocket connection closed");
   console.log(ws.benutzername);
@@ -207,7 +179,7 @@ sendeBenutzerlisteZuClients()
 
 
 
-  // TODO: Remove related user from connected users and propagate new list
+  
 };
 
 const getMessageHistory = async () => {
@@ -270,7 +242,7 @@ function benutzerInJSON() {
 }
 
 function sendeNachrichtenverlaufZuClient(client) {
-  // Senden Sie den Nachrichtenverlauf als JSON an den Client
+  // Senden des Nachrichtenverlaufs als JSON an den Client
 
   let datenzumSenden = {
     type: "initialeDaten",
@@ -278,8 +250,28 @@ function sendeNachrichtenverlaufZuClient(client) {
     messageHistory: messageHistory,
   };
 
-  // Senden Sie das JSON-Objekt an den Client
+  // Senden des JSON-Objekts an den Client
   client.send(JSON.stringify(datenzumSenden));
 
   //client.send(JSON.stringify(messageHistory));
+}
+
+//Nachrichten aus Redis auslesen und lokal in messageHistory[] speichern
+function nachrichtenverlaufAusRedisLokalSpeichern(){
+  getMessageHistory()
+      .then((messageHistory) => {
+        if (messageHistory) {
+          // Nachrichtenverlauf wurde erfolgreich aus Redis abgerufen
+          let parsedMessageHistory = JSON.parse(messageHistory);
+          console.log("Nachrichtenverlauf aus Redis abgerufen:", parsedMessageHistory);
+          // Nachrichtenverlauf aus dem Redis im "lokalen" messageHistory[] speichern
+          messageHistory=parsedMessageHistory;
+        } else {
+          // Nachrichtenverlauf existiert nicht in Redis oder ist leer
+          console.log("Kein Nachrichtenverlauf in Redis gefunden.");
+        }
+      })
+      .catch((error) => {
+        console.error("Fehler beim Abrufen des Nachrichtenverlaufs aus Redis:", error);
+      });
 }
