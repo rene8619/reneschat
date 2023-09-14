@@ -110,14 +110,46 @@ const onClientMessage = async (ws, message) => {
     case "message":
       // TODO: Publish new message to all connected clients and save in redis
       console.log("Empangene Nachricht", messageObject);
+
+      //Den Nachrichtenverlauf im array messageHistory speichern
+      messageHistory.push(messageObject);
+      setMessageHistory(JSON.stringify(messageHistory))
+
+
+      console.log("Empangene Nachricht History", JSON.stringify(messageHistory));
+
+
+      getMessageHistory()
+      .then((messageHistory) => {
+        if (messageHistory) {
+          // Nachrichtenverlauf wurde erfolgreich aus Redis abgerufen
+          const parsedMessageHistory = JSON.parse(messageHistory);
+          console.log("Nachrichtenverlauf aus Redis abgerufen:", parsedMessageHistory);
+        } else {
+          // Nachrichtenverlauf existiert nicht in Redis oder ist leer
+          console.log("Kein Nachrichtenverlauf in Redis gefunden.");
+        }
+      })
+      .catch((error) => {
+        console.error("Fehler beim Abrufen des Nachrichtenverlaufs aus Redis:", error);
+      });
+
+
+
+
+      //let messageHistoryZuruck = getMessageHistory;
+      //console.log((messageHistoryZuruck));
+
       // Nachricht mit einer forEach Schlaufe an alle Clients senden die im Array clients[] stehen
       clients.forEach((client) => {
 
         client.send(JSON.stringify(messageObject));
+        //client.send(JSON.stringify(messageHistory));
+
 
       });
-
-
+ 
+ 
       // ws.send(JSON.stringify(messageObject));  //nur an den einen Client senden von wo die Nachricht kam
 
       break;
