@@ -27,11 +27,11 @@ const initializeWebsocketServer = async (server) => {
 
   await redisClient.connect();
 
-// Redis al sMessageBroker verwenden um Nachrichten auf die anderen Backend zu synchronisieren
-  // This is the subscriber part
+  // Redis als MessageBroker verwenden um Nachrichten auf die anderen Backend zu synchronisieren
+  // Subscriber Initialisieren
   const subscriber = redisClient.duplicate();
   await subscriber.connect();
-  // This is the publisher part
+  // Publisher Initialisieren
   publisher = redisClient.duplicate();
   await publisher.connect();
 
@@ -39,7 +39,7 @@ const initializeWebsocketServer = async (server) => {
 
   // Nachrichtenverlauf aus Redis abrufen
   nachrichtenverlaufAusRedisLokalSpeichern();
-  
+
 
   benutzerlisteInRedisSpeichern();
   benutzerAusRedisLokalSpeichern();
@@ -112,8 +112,8 @@ const onClientMessage = async (ws, message) => {
       break;
     case "benutzernameWechsel":
 
-       benutzerAusRedisLokalSpeichern();
-       await pause(100);
+      benutzerAusRedisLokalSpeichern();
+      await pause(100);
 
       // Index des zu entfernenden Benutzers ermitteln
       let zuEntfernenderIndex = benutzer.indexOf(messageObject.benutzerAlt);
@@ -165,16 +165,19 @@ const onClientMessage = async (ws, message) => {
 
       console.log("Nachrichtenverlauf auf Redis aktualisiert", JSON.stringify(messageHistory));
 
-
-      // Nachricht mit einer forEach Schlaufe an alle Clients senden die im Array clients[] stehen
-      clients.forEach((client) => {
-
-        client.send(JSON.stringify(messageObject));
-        //client.send(JSON.stringify(messageHistory));
-
-
-      });
-
+      //Das direkte senden an die Clients auskommentiert. Wird später gemacht nachdem die Nachricht für 
+      //die Backendsynchronisation über den Message Borker zurückkommt. 
+      //sonst bekommen die direkt angeschlossen en Clients die Nachricht doppelt.
+      /*
+            // Nachricht mit einer forEach Schlaufe an alle Clients senden die im Array clients[] stehen
+            clients.forEach((client) => {
+      
+              client.send(JSON.stringify(messageObject));
+              //client.send(JSON.stringify(messageHistory));
+      
+      
+            });
+      */
       publisher.publish("besynchronisation", JSON.stringify(messageObject));
 
 
@@ -299,7 +302,7 @@ function nachrichtenverlaufAusRedisLokalSpeichern() {
         // Nachrichtenverlauf wurde erfolgreich aus Redis abgerufen
         let parsedMessageHistory = JSON.parse(messageHistory);
         console.log("Nachrichtenverlauf aus Redis abgerufen:", parsedMessageHistory);
-        
+
         // Nachrichtenverlauf aus dem Redis im "lokalen" messageHistory[] speichern
         messageHistory = parsedMessageHistory;
       } else {
@@ -349,9 +352,9 @@ function benutzerAusRedisLokalSpeichern() {
         let parsedBenutzerliste = JSON.parse(benutzerlisteRedis);
         console.log("Benutzer aus Redis abgerufen:", parsedBenutzerliste);
         // Benutzerliste aus dem Redis im "lokalen" benutzer[] speichern
-         pause(2000);
+        pause(2000);
         console.log("Benutzer aus benutzer[] vor aktualisierung:", benutzer);
-        benutzer = parsedBenutzerliste; 
+        benutzer = parsedBenutzerliste;
         pause(100);
         console.log("Benutzer aus benutzer[] nach aktualisierung:", benutzer);
       } else {
@@ -377,14 +380,14 @@ const speichereBenutzerliste = async (benutzerliste) => {
 };
 
 
- function pause(ms) {
+function pause(ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
 }
 
 
-// If a new message from the redis channel is received, the onRedisMessage function is called
+// Funktion wird aufgerufen wenn eine Nachricht vom Message Broker empfangen wurde
 const beSynchronisation = async (message) => {
   const messageObject = JSON.parse(message);
   console.log("Nachricht vom Message Broker empfangen: " + messageObject.type);
