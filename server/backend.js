@@ -30,9 +30,11 @@ const initializeWebsocketServer = async (server) => {
 
   // Nachrichtenverlauf aus Redis abrufen
   nachrichtenverlaufAusRedisLokalSpeichern();
+  
 
   benutzerlisteInRedisSpeichern();
   benutzerAusRedisLokalSpeichern();
+  await pause(100);
 
 
 
@@ -80,6 +82,7 @@ const onClientMessage = async (ws, message) => {
     case "neuerBenutzer":
 
       benutzerAusRedisLokalSpeichern();
+      await pause(100);
 
       //neuen Benutzer der Benutzerliste benutzer[] hinzufügen
       benutzer.push(messageObject.benutzer);
@@ -183,6 +186,7 @@ const onClose = async (ws) => {
   console.log(ws.benutzername);
 
   benutzerAusRedisLokalSpeichern();
+  await pause(100);
 
   // Index des zu entfernenden Benutzers ermitteln
   let zuEntfernenderIndex = benutzer.indexOf(ws.benutzername);
