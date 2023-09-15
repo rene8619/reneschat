@@ -40,8 +40,9 @@ const initializeWebsocketServer = async (server) => {
   // Nachrichtenverlauf aus Redis abrufen
   nachrichtenverlaufAusRedisLokalSpeichern();
 
-
-  benutzerlisteInRedisSpeichern();
+  //Benutzerliste aus Redis abrufen
+  
+  //benutzerlisteInRedisSpeichern();
   benutzerAusRedisLokalSpeichern();
   await pause(100);
 
@@ -107,7 +108,7 @@ const onClientMessage = async (ws, message) => {
 
       benutzerlisteInRedisSpeichern();
 
-
+      synchonisationBenutzerlisteAnstossen();
 
       break;
     case "benutzernameWechsel":
@@ -134,6 +135,8 @@ const onClientMessage = async (ws, message) => {
       // altualisierte Liste der Benutzer an alle Clients schicken
       sendeBenutzerlisteZuClients();
       benutzerlisteInRedisSpeichern();
+
+      synchonisationBenutzerlisteAnstossen();
 
       /*
       //Array in ein JSON Objekt umwandeln
@@ -188,7 +191,7 @@ const onClientMessage = async (ws, message) => {
       console.log("Test empfangen: " + messageObject.data);
       break;
     default:
-      console.error("Unknown message type: " + messageObject.type);
+      console.error("Unknown message type: 1 " + messageObject.type);
   }
 };
 
@@ -397,10 +400,27 @@ const beSynchronisation = async (message) => {
         client.send(JSON.stringify(messageObject));
       });
       break;
-    case "pushUsers":
-      await pushUsers();
+    case "neueBenutzerliste":
+      await BenutzerlisteSynchronisieren();
       break;
     default:
-      console.error("Unknown message type: " + messageObject.type);
+      console.error("Unknown message type: rrr " + messageObject.type);
   }
-}; 
+};  
+
+async function BenutzerlisteSynchronisieren(){
+  benutzerAusRedisLokalSpeichern();
+  await pause(100);
+  sendeBenutzerlisteZuClients();
+
+}
+
+
+const synchonisationBenutzerlisteAnstossen = () => {
+  const messageObject = {
+    type: "neueBenutzerliste"
+  };
+console.log("Synchronisation Benutzerliste angestosen");
+  // Aktualisierung der Benuterlister über den Message Broker anstossen
+  publisher.publish("besynchronisation", JSON.stringify(messageObject));
+};
