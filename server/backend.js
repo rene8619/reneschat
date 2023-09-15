@@ -27,6 +27,15 @@ const initializeWebsocketServer = async (server) => {
 
   await redisClient.connect();
 
+// Redis al sMessageBroker verwenden um Nachrichten auf die anderen Backend zu synchronisieren
+  // This is the subscriber part
+  const subscriber = redisClient.duplicate();
+  await subscriber.connect();
+  // This is the publisher part
+  publisher = redisClient.duplicate();
+  await publisher.connect();
+
+  await subscriber.subscribe("besynchronisation", beSynchronisation);
 
   // Nachrichtenverlauf aus Redis abrufen
   nachrichtenverlaufAusRedisLokalSpeichern();
@@ -165,6 +174,8 @@ const onClientMessage = async (ws, message) => {
 
 
       });
+
+      publisher.publish("besynchronisation", JSON.stringify(messageObject));
 
 
       // ws.send(JSON.stringify(messageObject));  //nur an den einen Client senden von wo die Nachricht kam
@@ -371,3 +382,22 @@ const speichereBenutzerliste = async (benutzerliste) => {
     setTimeout(resolve, ms);
   });
 }
+
+
+// If a new message from the redis channel is received, the onRedisMessage function is called
+const beSynchronisation = async (message) => {
+  const messageObject = JSON.parse(message);
+  console.log("Nachricht vom Message Broker empfangen: " + messageObject.type);
+  switch (messageObject.type) {
+    case "message":
+      clients.forEach((client) => {
+        client.send(JSON.stringify(messageObject));
+      });
+      break;
+    case "pushUsers":
+      await pushUsers();
+      break;
+    default:
+      console.error("Unknown message type: " + messageObject.type);
+  }
+}; 
