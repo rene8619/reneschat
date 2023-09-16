@@ -5,11 +5,7 @@ let redisClient;
 let clients = []; //Websocketverbindungen
 let messageHistory = [];
 
-
-
-let testarray = ["test1", "test2", "test3"];
-
-//let clients2 ={};
+let test = 0;
 
 let benutzer = []; // Chatnamen der Nutzer
 
@@ -38,13 +34,15 @@ const initializeWebsocketServer = async (server) => {
   await subscriber.subscribe("besynchronisation", beSynchronisation);
 
   // Nachrichtenverlauf aus Redis abrufen
-  nachrichtenverlaufAusRedisLokalSpeichern();
+messageHistory=JSON.parse( await getMessageHistory());
 
-  //Benutzerliste aus Redis abrufen
+
+
+  benutzerlisteLoeschen();  
   
-  //benutzerlisteInRedisSpeichern();
+  //Benutzerliste aus Redis abrufen
   benutzerAusRedisLokalSpeichern();
-  await pause(100);
+  await pause(100);  
 
 
 
@@ -71,6 +69,9 @@ const onConnection = (ws) => {
   ws.on("message", (message) => onClientMessage(ws, message));
   // TODO: Send all connected users and current message history to the new client
   //console.log("ws ist:", ws);
+
+  nachrichtenverlaufAusRedisLokalSpeichern();
+ 
 
   // Senden des Nachrichtenverlaufs an den neuen Client
   sendeNachrichtenverlaufZuClient(ws);
@@ -159,6 +160,7 @@ const onClientMessage = async (ws, message) => {
 
       //Nachrichten von Redis im lokalen messageHistory[] speichern damit man auf dem aktuellsten Stand ist
       nachrichtenverlaufAusRedisLokalSpeichern();
+      await pause(100);
 
       //Die Neue Nachricht im Nachrichtenverlauf messageHistory[] anfügen
 
@@ -220,6 +222,8 @@ const onClose = async (ws) => {
 
   benutzerlisteInRedisSpeichern();
 
+  synchonisationBenutzerlisteAnstossen();
+
 
 };
 
@@ -232,6 +236,11 @@ const setMessageHistory = async (messageHistory) => {
 };
 
 module.exports = { initializeWebsocketServer };
+
+function benutzerlisteLoeschen() {
+  benutzer = [];
+  benutzerlisteInRedisSpeichern();
+}
 
 function sendeBenutzerlisteZuClients() {
 
@@ -299,15 +308,19 @@ function sendeNachrichtenverlaufZuClient(client) {
 
 //Nachrichten aus Redis auslesen und lokal in messageHistory[] speichern
 function nachrichtenverlaufAusRedisLokalSpeichern() {
+  
   getMessageHistory()
     .then((messageHistory) => {
       if (messageHistory) {
+        
         // Nachrichtenverlauf wurde erfolgreich aus Redis abgerufen
         let parsedMessageHistory = JSON.parse(messageHistory);
-        console.log("Nachrichtenverlauf aus Redis abgerufen:", parsedMessageHistory);
+        //console.log("Nachrichtenverlauf aus Redis abgerufen:", parsedMessageHistory);
 
         // Nachrichtenverlauf aus dem Redis im "lokalen" messageHistory[] speichern
         messageHistory = parsedMessageHistory;
+        
+       
       } else {
         // Nachrichtenverlauf existiert nicht in Redis oder ist leer
         console.log("Kein Nachrichtenverlauf in Redis gefunden.");
@@ -351,15 +364,15 @@ function benutzerAusRedisLokalSpeichern() {
     .then((benutzerlisteRedis) => {
       if (benutzerlisteRedis) {
         // Benutzerliste wurde erfolgreich aus Redis abgerufen
-        pause(100);
+        
         let parsedBenutzerliste = JSON.parse(benutzerlisteRedis);
-        console.log("Benutzer aus Redis abgerufen:", parsedBenutzerliste);
+        //console.log("Benutzer aus Redis abgerufen:", parsedBenutzerliste);
         // Benutzerliste aus dem Redis im "lokalen" benutzer[] speichern
-        pause(2000);
-        console.log("Benutzer aus benutzer[] vor aktualisierung:", benutzer);
+        
+        //console.log("Benutzer aus benutzer[] vor aktualisierung:", benutzer);
         benutzer = parsedBenutzerliste;
-        pause(100);
-        console.log("Benutzer aus benutzer[] nach aktualisierung:", benutzer);
+        
+        //console.log("Benutzer aus benutzer[] nach aktualisierung:", benutzer);
       } else {
         // Benutzerliste existiert nicht in Redis oder ist leer
         console.log("Keine Benutzerliste in Redis gefunden.");
@@ -376,6 +389,7 @@ function benutzerlisteInRedisSpeichern() {
 
 const holeBenutzerliste = async () => {
   return await redisClient.get("benutzer");
+  
 };
 
 const speichereBenutzerliste = async (benutzerliste) => {
