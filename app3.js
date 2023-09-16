@@ -8,7 +8,6 @@ const { initializeWebsocketServer } = require("./server/backend");
 const app = express();
 const server = http.createServer(app);
 
-
 /*
 // create a livereload server
 const env = process.env.NODE_ENV || "development";
@@ -22,6 +21,7 @@ if (env !== "production") {
   // use livereload middleware
   app.use(connectLiveReload());
 }
+
 */
 
 // deliver static files from the client folder like css, js, images
@@ -36,11 +36,10 @@ app.get("/", (req, res) => {
   // Initialize the websocket server
   await initializeWebsocketServer(server);
   //start the web server
-  
   const serverPort = 3001;
   server.listen(serverPort, () => {
     console.log(
-      `Express Server started on port ${serverPort} as ' ' Environment`
+      `Express Server started on port ${serverPort} as '   ' Environment`
     );
   });
 })();
