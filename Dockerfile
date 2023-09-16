@@ -17,4 +17,4 @@ COPY . /app
 
 # Start the server when the container starts
 CMD ["node", "app.js"]
-#CMD [npm start]
+#CMD ["npm run prod"]
