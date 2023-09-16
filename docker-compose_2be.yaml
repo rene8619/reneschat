@@ -10,7 +10,7 @@ services:
       - chat
 
   reneschat:
-    image: reneschat
+    image: rstriby/reneschat
     restart: always
     ports:
      - 3000
@@ -23,7 +23,7 @@ services:
       - REDIS_PORT=6379
     command: ["npm", "start"] # Hier den gewünschten Startbefehl angeben
   reneschat2:
-    image: reneschat
+    image: rstriby/reneschat
     restart: always
     ports:
       - 3000
