@@ -123,16 +123,7 @@ function showMessage(message, benutzer) {
 
 socket.addEventListener("close", (event) => {
   console.log("WebSocket closed.");
-  let testObjekt = {
-    type: "test",
-    benutzer: benutzername
-
-  }
-
-  
-  console.log(testObjekt);
-
-  socket.send(JSON.stringify(testObjekt));
+ 
 });
 
 socket.addEventListener("error", (event) => {
@@ -181,3 +172,17 @@ function BenutzernameGenerieren() {
   let gastname = "Gast" + zufallszahl;
   return gastname;
 } 
+
+
+function leereAlles() {
+  let loeschObjekt = {
+    type: "leeren",
+    benutzer: benutzername
+
+  }
+
+  
+  //console.log(loeschObjekt);
+
+  socket.send(JSON.stringify(loeschObjekt));
+}

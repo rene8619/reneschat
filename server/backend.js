@@ -5,8 +5,6 @@ let redisClient;
 let clients = []; //Websocketverbindungen
 let messageHistory = [];
 
-let test = 0;
-
 let benutzer = []; // Chatnamen der Nutzer
 
 // Intiiate the websocket server
@@ -38,11 +36,11 @@ messageHistory=JSON.parse( await getMessageHistory());
 
 
 
-  benutzerlisteLoeschen();  
+  //benutzerlisteLoeschen();  
   
   //Benutzerliste aus Redis abrufen
   benutzerAusRedisLokalSpeichern();
-  await pause(100);  
+  await pause(100);   
 
 
 
@@ -52,11 +50,6 @@ messageHistory=JSON.parse( await getMessageHistory());
 
 
 };
-
-
-
-
-
 
 
 // If a new connection is established, the onConnection function is called
@@ -139,20 +132,7 @@ const onClientMessage = async (ws, message) => {
 
       synchonisationBenutzerlisteAnstossen();
 
-      /*
-      //Array in ein JSON Objekt umwandeln
-      let benutzerObjekt = benutzerInJSON();
-
-      //Neue Liste der Benutzer an alle Clients schicken
-      clients.forEach((client) => {
-
-        client.send(JSON.stringify(benutzerObjekt));
-
-      });
-
-      */
-
-
+     
       break;
     case "message":
       // TODO: Publish new message to all connected clients and save in redis
@@ -166,7 +146,7 @@ const onClientMessage = async (ws, message) => {
 
       messageHistory.push(messageObject);
       //Die aktualisierte messageHistory im Redis speichern
-      setMessageHistory(JSON.stringify(messageHistory))
+      setMessageHistory(JSON.stringify(messageHistory));
 
       console.log("Nachrichtenverlauf auf Redis aktualisiert", JSON.stringify(messageHistory));
 
@@ -183,14 +163,20 @@ const onClientMessage = async (ws, message) => {
       
             });
       */
+     // An den Message Broker schicken
       publisher.publish("besynchronisation", JSON.stringify(messageObject));
 
 
       // ws.send(JSON.stringify(messageObject));  //nur an den einen Client senden von wo die Nachricht kam
 
       break;
-    case "test":
-      console.log("Test empfangen: " + messageObject.data);
+    case "leeren":
+      console.log("alles leeren empfangen: " + messageObject.data);
+      // Nachrichtenverlauf auf der Redis Datenbank wird geleert, Benuterliste wird geleert
+      //Wenn das Backend neustartet werden die mit dem Backend verbundenen Benuter nicht aus dem Redis gelöscht
+      // Mit dieser funktion mann man es manuell löschen.
+      messageHistoryLoeschen();
+      benutzerlisteLoeschen();
       break;
     default:
       console.error("Unknown message type: 1 " + messageObject.type);
@@ -240,6 +226,14 @@ module.exports = { initializeWebsocketServer };
 function benutzerlisteLoeschen() {
   benutzer = [];
   benutzerlisteInRedisSpeichern();
+  sendeBenutzerlisteZuClients();
+  synchonisationBenutzerlisteAnstossen();
+}
+
+function messageHistoryLoeschen(){
+  messageHistory = [];
+  setMessageHistory(JSON.stringify(messageHistory));
+
 }
 
 function sendeBenutzerlisteZuClients() {
