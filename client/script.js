@@ -48,19 +48,7 @@ socket.addEventListener("message", (event) => {
     case "user":
       // TODO: Show the current users as DOM elements
 
-      /*
-      //console.log(messageObject);
-
-
-
-      let benutzerArray = Object.values(messageObject.data);
-      if (Array.isArray(benutzerArray)) {
-        console.log("ist ein Array")
-      } else {
-        console.log("Ist kein Array")
-      }
-      */
-
+      
       // Das <ul> Element auswählen
       let BenutzerListe = document.getElementById("user-list");
 
