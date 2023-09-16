@@ -104,6 +104,9 @@ socket.addEventListener("message", (event) => {
   }
 });
 
+
+
+
 function showUsers(users) {
   // TODO: Show the current users as DOM elements
 }
@@ -149,6 +152,15 @@ function changeUsername() {
   //socket.send(JSON.stringify(message));
 }
 
+// Nachricht mit Enter-Taste absenden
+document.getElementById("nachricht").addEventListener("keydown", function(event) {
+  if (event.key === "Enter") {
+      event.preventDefault(); // Verhindert, dass die Eingabezeile einen Zeilenumbruch erzeugt
+      sendMessage(); // Ruft die Funktion zum Senden der Nachricht auf
+  }
+});
+
+
 function sendMessage() {
   // TODO get message from input and send message as object to backend
   console.log("send Message wurde ausgeführt ")
@@ -172,6 +184,7 @@ function BenutzernameGenerieren() {
   let gastname = "Gast" + zufallszahl;
   return gastname;
 } 
+
 
 
 function leereAlles() {
