@@ -34,6 +34,7 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - NODE_ENV=production
     command: ["npm", "start"] # Hier den gewünschten Startbefehl angeben  
   nginx:
     image: nginx:alpine
