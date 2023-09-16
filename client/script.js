@@ -116,7 +116,7 @@ function showMessage(message, benutzer) {
   //console.log("test stop");
   //console.log("vom be empgangene Nachricht:", message, "<br> von: ", benutzer);
   //chatDiv.innerHTML += "Die sist ein test <br>";
-  chatDiv.innerHTML += benutzer + ":" + message + "<br>";
+  chatDiv.innerHTML += "<b>" + benutzer + ": </b>" + message + "<br>";
   
   // im Chatfenster ganz nach unten scrollen damit man die neusten Nachrichten sieht
   chatDiv.scrollTop = chatDiv.scrollHeight;
