@@ -148,7 +148,7 @@ const onClientMessage = async (ws, message) => {
       //Die aktualisierte messageHistory im Redis speichern
       setMessageHistory(JSON.stringify(messageHistory));
 
-      console.log("Nachrichtenverlauf auf Redis aktualisiert", JSON.stringify(messageHistory));
+      console.log("Nachrichtenverlauf auf Redis aktualisiert"/*, JSON.stringify(messageHistory)*/);
 
       //Das direkte senden an die Clients auskommentiert. Wird später gemacht nachdem die Nachricht für 
       //die Backendsynchronisation über den Message Borker zurückkommt. 
@@ -163,9 +163,9 @@ const onClientMessage = async (ws, message) => {
       
             });
       */
-     // An den Message Broker schicken
+     
+            // An den Message Broker schicken
       publisher.publish("besynchronisation", JSON.stringify(messageObject));
-
 
       // ws.send(JSON.stringify(messageObject));  //nur an den einen Client senden von wo die Nachricht kam
 
@@ -223,6 +223,7 @@ const setMessageHistory = async (messageHistory) => {
 
 module.exports = { initializeWebsocketServer };
 
+// Die Benutzerliste  im Redis löschen
 function benutzerlisteLoeschen() {
   benutzer = [];
   benutzerlisteInRedisSpeichern();
@@ -230,6 +231,7 @@ function benutzerlisteLoeschen() {
   synchonisationBenutzerlisteAnstossen();
 }
 
+//Nachrichtenverlauf im Redis löschen
 function messageHistoryLoeschen(){
   messageHistory = [];
   setMessageHistory(JSON.stringify(messageHistory));
@@ -252,23 +254,7 @@ function sendeBenutzerlisteZuClients() {
 
 
 function benutzerInJSON() {
-  /*let benutzerListeJson = {
-    type: "user",
-    data: benutzer.map((benutzer, index) => ({
-      // id: index + 1, // Eine eindeutige ID für den Client
-       benutzername: benutzer, // 
-       
-     }))
-  };
-  */
-
-  /*let benutzerListeJson = benutzer.map((benutzer) => ({
-    type: "user",
-    benutzername: benutzer
-  }));
-  */
-
-
+ 
   let benutzerListeJson = {
     type: "user",
     data: benutzer.map((benutzer, index) => ({
@@ -279,9 +265,6 @@ function benutzerInJSON() {
   };
 
 
-  //console.log("in benutzerInJSON() ")
-  //console.log(benutzerListeJson);
-  //return JSON.stringify(benutzerListeJson);
   return benutzerListeJson;
 }
 
@@ -325,33 +308,6 @@ function nachrichtenverlaufAusRedisLokalSpeichern() {
     });
 }
 
-/*
-async function benutzerAusRedisLokalSpeichern(){
-  
-      const benutzerInRedis = await redisClient.get("benutzer");
-      if (benutzerInRedis) {
-        
-        let parsedBenuterAusRedis = JSON.parse(benutzerInRedis);
-        console.log("Benutzerliste aus Redis abgerufen:", parsedBenuterAusRedis);
-        
-        benutzer=parsedBenuterAusRedis;
-      } else {
-        
-        console.log("Keine Benutzer in Redis gefunden.");
-      }
-  }
-      
-  async function benutzerlisteInRedisSpeichern(){
-    try{
-    
-      await redisClient.set("benutzer", JSON.stringify(benutzer));
-      console.log("Benutzerliste in Redis gespeichert");
-    }catch (error) {
-      console.error("Fehler beim Speichern der Benutzerliste in Redis:", error);
-    }
-  }
-*/
-
 
 function benutzerAusRedisLokalSpeichern() {
   holeBenutzerliste()
@@ -390,7 +346,7 @@ const speichereBenutzerliste = async (benutzerliste) => {
   await redisClient.set("benutzer", benutzerliste);
 };
 
-
+// Pausenfunktion
 function pause(ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
@@ -423,7 +379,7 @@ async function BenutzerlisteSynchronisieren(){
 
 }
 
-
+// über den Message Broker anstossen das alle Backends die Benutzerliste aktualisieren sollen
 const synchonisationBenutzerlisteAnstossen = () => {
   const messageObject = {
     type: "neueBenutzerliste"
