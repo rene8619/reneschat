@@ -58,6 +58,7 @@ socket.addEventListener("message", (event) => {
       }
 
       // Die Benutzernamen aus dem JSON-Objekt extrahieren und in die Liste einfügen
+      let benutzerArray=[];
       benutzerArray.forEach((item) => {
         // Ein <li> Element für jeden Benutzernamen erstellen
         const listItem = document.createElement("li");
