@@ -48,6 +48,7 @@ socket.addEventListener("message", (event) => {
     case "user":
       // TODO: Show the current users as DOM elements
 
+      /*
       //console.log(messageObject);
 
 
@@ -58,7 +59,7 @@ socket.addEventListener("message", (event) => {
       } else {
         console.log("Ist kein Array")
       }
-
+      */
 
       // Das <ul> Element auswählen
       let BenutzerListe = document.getElementById("user-list");
@@ -87,7 +88,7 @@ socket.addEventListener("message", (event) => {
       showMessage(messageObject.nachricht, messageObject.benutzer);
       break;
 
-      case "initialeDaten": 
+    case "initialeDaten":
       // Initialdaten vom Server empfangen, Nur die messageHistory user sind anderst gelöst
       console.log("Initialdaten vom Server empfangen");
       console.log(messageObject);
@@ -113,20 +114,18 @@ function showUsers(users) {
 
 function showMessage(message, benutzer) {
   let chatDiv = document.getElementById("chatNachrichten");
-  //console.log("test stop");
-  //console.log("vom be empgangene Nachricht:", message, "<br> von: ", benutzer);
-  //chatDiv.innerHTML += "Die sist ein test <br>";
-  chatDiv.innerHTML += "<b>" + benutzer + ": </b>" + message + "<br>";
   
+  chatDiv.innerHTML += "<b>" + benutzer + ": </b>" + message + "<br>";
+
   // im Chatfenster ganz nach unten scrollen damit man die neusten Nachrichten sieht
   chatDiv.scrollTop = chatDiv.scrollHeight;
-  
+
   // TODO: Show new message as DOM element append to chat history
 }
 
 socket.addEventListener("close", (event) => {
   console.log("WebSocket closed.");
- 
+
 });
 
 socket.addEventListener("error", (event) => {
@@ -149,14 +148,14 @@ function changeUsername() {
   console.log(nachrichtObjekt);
 
   socket.send(JSON.stringify(nachrichtObjekt));
-  //socket.send(JSON.stringify(message));
+  
 }
 
 // Nachricht mit Enter-Taste absenden
-document.getElementById("nachricht").addEventListener("keydown", function(event) {
+document.getElementById("nachricht").addEventListener("keydown", function (event) {
   if (event.key === "Enter") {
-      event.preventDefault(); // Verhindert, dass die Eingabezeile einen Zeilenumbruch erzeugt
-      sendMessage(); // Ruft die Funktion zum Senden der Nachricht auf
+    event.preventDefault(); // Verhindert, dass die Eingabezeile einen Zeilenumbruch erzeugt
+    sendMessage(); // Ruft die Funktion zum Senden der Nachricht auf
   }
 });
 
@@ -183,19 +182,17 @@ function BenutzernameGenerieren() {
   let zufallszahl = Math.floor(10000 + Math.random() * 90000);
   let gastname = "Gast" + zufallszahl;
   return gastname;
-} 
+}
 
 
-
+// funktion um alle Benutzer und der Nachrichtenverlauf im Redis zu leeren.
+// wird nicht vom programm genutzt müsste manuell aufgerufen werden
 function leereAlles() {
   let loeschObjekt = {
     type: "leeren",
     benutzer: benutzername
 
   }
-
-  
   //console.log(loeschObjekt);
-
   socket.send(JSON.stringify(loeschObjekt));
 }
