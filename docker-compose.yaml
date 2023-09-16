@@ -10,7 +10,7 @@ services:
       - chat
 
   reneschat:
-    image: reneschat
+    image: rstriby/reneschat
     restart: always
     ports:
       - 3000:3000
