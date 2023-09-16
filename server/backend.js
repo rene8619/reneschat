@@ -32,15 +32,15 @@ const initializeWebsocketServer = async (server) => {
   await subscriber.subscribe("besynchronisation", beSynchronisation);
 
   // Nachrichtenverlauf aus Redis abrufen
-messageHistory=JSON.parse( await getMessageHistory());
+  messageHistory = JSON.parse(await getMessageHistory());
 
 
 
   //benutzerlisteLoeschen();  
-  
+
   //Benutzerliste aus Redis abrufen
   benutzerAusRedisLokalSpeichern();
-  await pause(100);   
+  await pause(100);
 
 
 
@@ -64,7 +64,7 @@ const onConnection = (ws) => {
   //console.log("ws ist:", ws);
 
   nachrichtenverlaufAusRedisLokalSpeichern();
- 
+
 
   // Senden des Nachrichtenverlaufs an den neuen Client
   sendeNachrichtenverlaufZuClient(ws);
@@ -132,7 +132,7 @@ const onClientMessage = async (ws, message) => {
 
       synchonisationBenutzerlisteAnstossen();
 
-     
+
       break;
     case "message":
       // TODO: Publish new message to all connected clients and save in redis
@@ -144,6 +144,10 @@ const onClientMessage = async (ws, message) => {
 
       //Die Neue Nachricht im Nachrichtenverlauf messageHistory[] anfügen
 
+      if (messageHistory == null) {
+        messageHistory = [];
+
+      }
       messageHistory.push(messageObject);
       //Die aktualisierte messageHistory im Redis speichern
       setMessageHistory(JSON.stringify(messageHistory));
@@ -163,8 +167,8 @@ const onClientMessage = async (ws, message) => {
       
             });
       */
-     
-            // An den Message Broker schicken
+
+      // An den Message Broker schicken
       publisher.publish("besynchronisation", JSON.stringify(messageObject));
 
       // ws.send(JSON.stringify(messageObject));  //nur an den einen Client senden von wo die Nachricht kam
@@ -232,7 +236,7 @@ function benutzerlisteLoeschen() {
 }
 
 //Nachrichtenverlauf im Redis löschen
-function messageHistoryLoeschen(){
+function messageHistoryLoeschen() {
   messageHistory = [];
   setMessageHistory(JSON.stringify(messageHistory));
 
@@ -254,7 +258,7 @@ function sendeBenutzerlisteZuClients() {
 
 
 function benutzerInJSON() {
- 
+
   let benutzerListeJson = {
     type: "user",
     data: benutzer.map((benutzer, index) => ({
@@ -285,22 +289,23 @@ function sendeNachrichtenverlaufZuClient(client) {
 
 //Nachrichten aus Redis auslesen und lokal in messageHistory[] speichern
 function nachrichtenverlaufAusRedisLokalSpeichern() {
-  
+
   getMessageHistory()
     .then((messageHistory) => {
       if (messageHistory) {
-        
+
         // Nachrichtenverlauf wurde erfolgreich aus Redis abgerufen
         let parsedMessageHistory = JSON.parse(messageHistory);
         //console.log("Nachrichtenverlauf aus Redis abgerufen:", parsedMessageHistory);
 
         // Nachrichtenverlauf aus dem Redis im "lokalen" messageHistory[] speichern
         messageHistory = parsedMessageHistory;
-        
-       
+
+
       } else {
         // Nachrichtenverlauf existiert nicht in Redis oder ist leer
         console.log("Kein Nachrichtenverlauf in Redis gefunden.");
+
       }
     })
     .catch((error) => {
@@ -314,14 +319,14 @@ function benutzerAusRedisLokalSpeichern() {
     .then((benutzerlisteRedis) => {
       if (benutzerlisteRedis) {
         // Benutzerliste wurde erfolgreich aus Redis abgerufen
-        
+
         let parsedBenutzerliste = JSON.parse(benutzerlisteRedis);
         //console.log("Benutzer aus Redis abgerufen:", parsedBenutzerliste);
         // Benutzerliste aus dem Redis im "lokalen" benutzer[] speichern
-        
+
         //console.log("Benutzer aus benutzer[] vor aktualisierung:", benutzer);
         benutzer = parsedBenutzerliste;
-        
+
         //console.log("Benutzer aus benutzer[] nach aktualisierung:", benutzer);
       } else {
         // Benutzerliste existiert nicht in Redis oder ist leer
@@ -339,7 +344,7 @@ function benutzerlisteInRedisSpeichern() {
 
 const holeBenutzerliste = async () => {
   return await redisClient.get("benutzer");
-  
+
 };
 
 const speichereBenutzerliste = async (benutzerliste) => {
@@ -370,9 +375,9 @@ const beSynchronisation = async (message) => {
     default:
       console.error("Unknown message type: rrr " + messageObject.type);
   }
-};  
+};
 
-async function BenutzerlisteSynchronisieren(){
+async function BenutzerlisteSynchronisieren() {
   benutzerAusRedisLokalSpeichern();
   await pause(100);
   sendeBenutzerlisteZuClients();
@@ -384,7 +389,7 @@ const synchonisationBenutzerlisteAnstossen = () => {
   const messageObject = {
     type: "neueBenutzerliste"
   };
-console.log("Synchronisation Benutzerliste angestosen");
+  console.log("Synchronisation Benutzerliste angestosen");
   // Aktualisierung der Benuterlister über den Message Broker anstossen
   publisher.publish("besynchronisation", JSON.stringify(messageObject));
 };
