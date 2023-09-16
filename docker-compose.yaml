@@ -21,5 +21,8 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - NODE_ENV=production
+    #command: ["npm", "start"] # Hier den gewünschten Startbefehl angeben
+    command: ["node", "app.js"] # Hier den gewünschten Startbefehl angeben
 networks:
   chat:
