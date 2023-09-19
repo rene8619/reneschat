@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis-deployment
-  namespace: {{ namespace }} # Replace with your namespace
+  namespace: pvs-teko14 # Replace with your namespace
 spec:
   replicas: 1
   selector:

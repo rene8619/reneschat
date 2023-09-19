@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: redis-service
-  namespace: {{ namespace }} # Replace with your namespace
+  namespace: pvs-teko14 # Replace with your namespace
 spec:
   selector:
     app: redis
