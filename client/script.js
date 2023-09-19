@@ -47,8 +47,8 @@ socket.addEventListener("message", (event) => {
       socket.send(JSON.stringify({ type: "pong", data: "FROM CLIENT" }));
     case "user":
       // TODO: Show the current users as DOM elements
-
       
+      let benutzerArray = Object.values(messageObject.data);
       // Das <ul> Element auswählen
       let BenutzerListe = document.getElementById("user-list");
 
@@ -56,16 +56,18 @@ socket.addEventListener("message", (event) => {
       while (BenutzerListe.firstChild) {
         BenutzerListe.removeChild(BenutzerListe.firstChild);
       }
-
+      
       // Die Benutzernamen aus dem JSON-Objekt extrahieren und in die Liste einfügen
-      let benutzerArray=[];
+      
       benutzerArray.forEach((item) => {
+        
         // Ein <li> Element für jeden Benutzernamen erstellen
         const listItem = document.createElement("li");
         listItem.textContent = item.benutzername;
 
         // Das <li> Element der <ul> Liste hinzufügen
         BenutzerListe.appendChild(listItem);
+        
       });
 
 
