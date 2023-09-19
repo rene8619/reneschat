@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: chat-ingress 
-  namespace: {{ namespace }}
+  namespace: pvs-teko14
   annotations:
     nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
     acme.cert-manager.io/http01-edit-in-place: "true"
