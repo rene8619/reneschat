@@ -5,16 +5,15 @@ FROM node:18
 WORKDIR /app
 
 # Copy the package.json and package-lock.json files to the container
-COPY package.json /app/package.json
-
-# Install the dependencies
-RUN npm install
-
-# Copy the source code to the container
+# COPY package.json /app/package.json
 
 #das ganze Verzeichniss nach /app kopieren
 COPY . /app
 
+# Install the dependencies
+RUN npm install
+
+
 # Start the server when the container starts
-CMD ["node", "app.js"]
-#CMD ["npm run prod"]
+#CMD ["node", "app.js"]
+CMD ["npm", "run", prod"]
