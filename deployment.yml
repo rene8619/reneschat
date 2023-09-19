@@ -4,7 +4,7 @@ metadata:
   name: chat-deployment
   namespace: pvs-teko14 # Replace with your namespace
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: chat
