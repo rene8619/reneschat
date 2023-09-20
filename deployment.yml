@@ -4,7 +4,7 @@ metadata:
   name: chat-deployment
   namespace: pvs-teko14 # Replace with your namespace
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: chat
@@ -19,7 +19,7 @@ spec:
           resources:
             limits:
               cpu: "100m" #"0.5"
-              memory: "500Mi"
+              memory: "400Mi"
           env:
             - name: REDIS_HOST
               value: redis-service
