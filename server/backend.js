@@ -53,7 +53,7 @@ const initializeWebsocketServer = async (server) => {
 
 
 // If a new connection is established, the onConnection function is called
-const onConnection = (ws) => {
+const onConnection = async (ws) => {
   console.log("New websocket connection");
 
   //Den Client dem Array clients hinzufügen
@@ -63,8 +63,10 @@ const onConnection = (ws) => {
   // TODO: Send all connected users and current message history to the new client
   //console.log("ws ist:", ws);
 
-  nachrichtenverlaufAusRedisLokalSpeichern();
+  messageHistory = JSON.parse(await getMessageHistory());
 
+   
+  
 
   // Senden des Nachrichtenverlaufs an den neuen Client
   sendeNachrichtenverlaufZuClient(ws);
@@ -272,7 +274,7 @@ function benutzerInJSON() {
   return benutzerListeJson;
 }
 
-function sendeNachrichtenverlaufZuClient(client) {
+ function sendeNachrichtenverlaufZuClient(client) {
   // Senden des Nachrichtenverlaufs als JSON an den Client
 
   let datenzumSenden = {
@@ -373,7 +375,7 @@ const beSynchronisation = async (message) => {
       await BenutzerlisteSynchronisieren();
       break;
     default:
-      console.error("Unknown message type: rrr " + messageObject.type);
+      console.error("Unknown message type:  " + messageObject.type);
   }
 };
 
