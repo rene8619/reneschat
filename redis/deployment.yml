@@ -18,7 +18,7 @@ spec:
           image: redis:latest
           resources:
             limits:
-              cpu: "0.5"
+              cpu: "50m"
               memory: "500Mi"
           ports:
             - containerPort: 6379
