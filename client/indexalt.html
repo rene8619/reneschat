@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>René's Chat</title>
+    <!-- CSS später auslagern -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+
+        }
+
+        .container {
+            display: flex;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .user-list {
+            flex: 1;
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 20px;
+            margin-right: 20px;
+        }
+
+        .user-list h2 {
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul li {
+            margin-bottom: 10px;
+        }
+
+        .chat {
+            flex: 2;
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 20px;
+        }
+
+        .chatNachrichten {
+            max-height: 400px;
+            overflow-y: scroll; /*auto*/
+        }
+
+
+        .chat-input {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .chat-input input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .chat-input button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>René's Chat</h1>
+    </header>
+    <div class="container">
+        <div class="user-list">
+            <h2>Eingeloggte Benutzer</h2>
+            <ul id="user-list">
+                <!-- Die Benutzerliste soll hier dynamisch aktualisiert werden -->
+            </ul>
+            <div>
+                <h2>Dein Name ändern</h2>
+                aktueller name: <span id="benutzername"> </span>
+                <input type="text" id="namenswechsel" placeholder="Neuer Name">
+                <button id="namenswechsel-button" onclick="changeUsername()">Ändern</button>
+            </div>
+        </div>
+        <div class="chat">
+            <h2>Chat</h2>
+            <div class="chatNachrichten" id="chatNachrichten">
+                <!-- Die Chat-Nachrichten sollen hier dargestell twerden -->
+            </div>
+            <div class="chat-input">
+                <input type="text" id="nachricht" placeholder="Nachricht eingeben">
+                <button id="send" onclick="sendMessage()">Senden</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Einfache Chat Anwendung von René</p>
+    </footer>
+    
+    <script src="/script.js"></script>
+    
+</body>
+</html>
